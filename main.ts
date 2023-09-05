@@ -1,4 +1,4 @@
-import { loadDotEnv } from "https://deno.land/std/dotenv/mod.ts";
+import { load as loadDotEnv } from "https://deno.land/std/dotenv/mod.ts";
 
 import { Client } from "./client/client.ts";
 
