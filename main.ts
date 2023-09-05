@@ -1,8 +1,12 @@
-export function add(a: number, b: number): number {
-  return a + b;
-}
+import { loadDotEnv } from "https://deno.land/std/dotenv/mod.ts";
 
-// Learn more at https://deno.land/manual/examples/module_metadata#concepts
+import { Client } from "./client/client.ts";
+
+const env = await loadDotEnv();
+const client = new Client();
+
 if (import.meta.main) {
-  console.log("Add 2 + 3 =", add(2, 3));
+  await client.authenticate(env["DSM_USR"], env["DSM_PWD"]);
+
+  await client.listShares();
 }
