@@ -1,21 +1,50 @@
-import { Authentication } from "./authentication.ts";
+import { Effect, Option, pipe } from "npm:effect@latest";
+
+import {
+  Authentication,
+  parse as parseAuthentication,
+} from "./authentication.ts";
 import { buildURL } from "./url.ts";
+import { parse as parsePayload } from "./payload.ts";
+
+class NotAuthenticatedError extends Error {
+  constructor() {
+    super("Not Authenticated'");
+  }
+}
 
 export class Client {
-  private authentication: Authentication | null = null;
+  private authentication: Option.Option<Authentication> = Option.none();
 
-  private attachAuthentication(url: URL): URL {
-    if (!this.authentication) {
-      throw new Error("not authenticated");
-    }
+  private constructor() {}
 
-    url.searchParams.append("SynoToken", this.authentication.synotoken);
-    url.searchParams.append("_sid", this.authentication.sid);
+  static create(
+    username: string,
+    password: string
+  ): Effect.Effect<never, NotAuthenticatedError, Client> {
+    const client = new Client();
 
-    return url;
+    return Effect.promise(() => client.authenticate(username, password));
   }
 
-  async authenticate(username: string, password: string): Promise<void> {
+  private injectAuthentication(
+    url: URL
+  ): Effect.Effect<never, NotAuthenticatedError, URL> {
+    return Option.match(this.authentication, {
+      onNone: () => Effect.fail(new NotAuthenticatedError()),
+      onSome: (authentication) => {
+        url.searchParams.append("SynoToken", authentication.synotoken);
+        url.searchParams.append("_sid", authentication.sid);
+
+        return Effect.succeed(url);
+      },
+    });
+  }
+
+  private async authenticate(
+    username: string,
+    password: string
+  ): Promise<Client> {
     const url = buildURL("SYNO.API.Auth", "6", "login");
 
     // User name and password
@@ -28,17 +57,42 @@ export class Client {
     const res = await fetch(url);
     const payload = await res.json();
 
-    this.authentication = Authentication.parse(payload.data);
-  }
-
-  async listShares() {
-    const url = this.attachAuthentication(
-      buildURL("SYNO.FileStation.List", "1", "list_share")
+    const auth = pipe(
+      parsePayload(payload),
+      Effect.flatMap((payload) => parseAuthentication(payload)),
+      Effect.option
     );
 
-    const res = await fetch(url);
-    const payload = await res.json();
+    this.authentication = Effect.runSync(auth);
 
-    console.log(payload);
+    return this;
+  }
+
+  private makeRequest<T>(url: URL): Effect.Effect<never, unknown, T> {
+    return pipe(
+      // Perform the `fetch` to the URL
+      Effect.promise(() => fetch(url)),
+      // Extract the JSON from the response
+      Effect.flatMap((response) => Effect.promise(() => response.json())),
+      // Parse the response payload to determine sucess or failure
+      Effect.flatMap((payload) => parsePayload(payload))
+    );
+  }
+
+  /* === API Actions === */
+
+  call(
+    api: string,
+    version: string,
+    method: string
+  ): Effect.Effect<never, NotAuthenticatedError | unknown, unknown> {
+    return pipe(
+      this.injectAuthentication(buildURL(api, version, method)),
+      Effect.flatMap((url) => this.makeRequest(url))
+    );
+  }
+
+  listShares(): Effect.Effect<never, NotAuthenticatedError | unknown, unknown> {
+    return this.call("SYNO.FileStation.List", "1", "list_share");
   }
 }

@@ -1,10 +1,12 @@
-import { z } from "https://deno.land/x/zod/mod.ts";
+import * as S from "npm:@effect/schema/Schema";
 
-export const Authentication = z.object({
-  did: z.string(),
-  is_portal_port: z.boolean(),
-  sid: z.string(),
-  synotoken: z.string(),
+export const Authentication = S.struct({
+  did: S.string,
+  is_portal_port: S.boolean,
+  sid: S.string,
+  synotoken: S.string,
 });
 
-export type Authentication = z.infer<typeof Authentication>;
+export type Authentication = S.To<typeof Authentication>;
+
+export const parse = S.parseResult(Authentication);

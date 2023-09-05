@@ -1,5 +1,10 @@
 {
   "tasks": {
     "dev": "deno run --watch main.ts"
+  },
+  "compilerOptions": {
+    // Requested by docs for `@effect/schema`
+    "strict": true,
+    "exactOptionalPropertyTypes": true
   }
 }
