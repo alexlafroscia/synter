@@ -1,14 +1,15 @@
-import { load as loadDotEnv } from "https://deno.land/std/dotenv/mod.ts";
-
-import { Client } from "./client/client.ts";
 import { Effect, pipe } from "npm:effect@latest";
 
-const env = await loadDotEnv();
+import { Client } from "./client/client.ts";
+import { credentials } from "./credentials.ts";
 
 if (import.meta.main) {
   const result = await Effect.runPromise(
     pipe(
-      Client.create(env["DSM_USR"], env["DSM_PWD"]),
+      credentials,
+      Effect.flatMap(([username, password]) =>
+        Client.create(username, password)
+      ),
       // Effect.flatMap((client) => client.listShares())
 
       // Effect.flatMap((client) => client.call("SYNO.API.Info", "1", "query")),
