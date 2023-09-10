@@ -34,6 +34,7 @@
     "https://deno.land/std@0.201.0/assert/unreachable.ts": "4600dc0baf7d9c15a7f7d234f00c23bca8f3eba8b140286aaca7aa998cf9a536",
     "https://deno.land/std@0.201.0/dotenv/mod.ts": "1da8c6d0e7f7d8a5c2b19400b763bc11739df24acec235dda7ea2cfd3d300057",
     "https://deno.land/std@0.201.0/fmt/colors.ts": "87544aa2bc91087bb37f9c077970c85bfb041b48e4c37356129d7b450a415b6f",
+    "https://deno.land/std@0.201.0/streams/write_all.ts": "aec90152978581ea62d56bb53a5cbf487e6a89c902f87c5969681ffbdf32b998",
     "https://deno.land/std@0.201.0/testing/_test_suite.ts": "30f018feeb3835f12ab198d8a518f9089b1bcb2e8c838a8b615ab10d5005465c",
     "https://deno.land/std@0.201.0/testing/bdd.ts": "3f446df5ef8e856a869e8eec54c8482590415741ff0b6358a00c43486cc15769",
     "https://deno.land/std@0.201.0/testing/mock.ts": "6576b4aa55ee20b1990d656a78fff83599e190948c00e9f25a7f3ac5e9d6492d",
@@ -55,7 +56,8 @@
     "specifiers": {
       "@effect/data": "@effect/data@0.18.3",
       "@effect/schema": "@effect/schema@0.34.0_@effect+data@0.18.3_@effect+io@0.39.1__@effect+data@0.18.3",
-      "effect@latest": "effect@2.0.0-next.30_@effect+data@0.18.3_@effect+io@0.39.1__@effect+data@0.18.3_@effect+match@0.35.2__@effect+data@0.18.3_@effect+stm@0.23.0__@effect+data@0.18.3__@effect+io@0.39.1___@effect+data@0.18.3_@effect+stream@0.35.1__@effect+data@0.18.3__@effect+io@0.39.1___@effect+data@0.18.3"
+      "effect@latest": "effect@2.0.0-next.30_@effect+data@0.18.3_@effect+io@0.39.1__@effect+data@0.18.3_@effect+match@0.35.2__@effect+data@0.18.3_@effect+stm@0.23.0__@effect+data@0.18.3__@effect+io@0.39.1___@effect+data@0.18.3_@effect+stream@0.35.1__@effect+data@0.18.3__@effect+io@0.39.1___@effect+data@0.18.3",
+      "type-fest": "type-fest@3.12.0"
     },
     "packages": {
       "@effect/data@0.18.3": {
@@ -114,6 +116,10 @@
       },
       "pure-rand@6.0.3": {
         "integrity": "sha512-KddyFewCsO0j3+np81IQ+SweXLDnDQTs5s67BOnrYmYe/yNmUhttQyGsYzy8yUnoljGAQ9sl38YB4vH8ur7Y+w==",
+        "dependencies": {}
+      },
+      "type-fest@3.12.0": {
+        "integrity": "sha512-qj9wWsnFvVEMUDbESiilKeXeHL7FwwiFcogfhfyjmvT968RXSvnl23f1JOClTHYItsi7o501C/7qVllscUP3oA==",
         "dependencies": {}
       }
     }

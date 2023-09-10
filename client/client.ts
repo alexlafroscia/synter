@@ -7,6 +7,7 @@ import {
 import { buildURL } from "./url.ts";
 import { parse as parsePayload } from "./payload.ts";
 
+import { fetch, json } from "../fetch.ts";
 class NotAuthenticatedError extends Error {
   constructor() {
     super("Not Authenticated'");
@@ -21,10 +22,10 @@ export class Client {
   static create(
     username: string,
     password: string
-  ): Effect.Effect<never, NotAuthenticatedError, Client> {
+  ): Effect.Effect<never, NotAuthenticatedError | unknown, Client> {
     const client = new Client();
 
-    return Effect.promise(() => client.authenticate(username, password));
+    return client.authenticate(username, password);
   }
 
   private injectAuthentication(
@@ -41,10 +42,10 @@ export class Client {
     });
   }
 
-  private async authenticate(
+  private authenticate(
     username: string,
     password: string
-  ): Promise<Client> {
+  ): Effect.Effect<never, unknown, Client> {
     const url = buildURL("SYNO.API.Auth", "6", "login");
 
     // User name and password
@@ -54,26 +55,24 @@ export class Client {
     // Not sure yet...
     url.searchParams.append("enable_syno_token", "yes");
 
-    const res = await fetch(url);
-    const payload = await res.json();
-
-    const auth = pipe(
-      parsePayload(payload),
+    return pipe(
+      this.makeRequest(url),
       Effect.flatMap((payload) => parseAuthentication(payload)),
-      Effect.option
+      Effect.map((authentication) => {
+        // Run side-effect; is there a better way to do this?
+        this.authentication = Option.some(authentication);
+
+        return this;
+      })
     );
-
-    this.authentication = Effect.runSync(auth);
-
-    return this;
   }
 
-  private makeRequest<T>(url: URL): Effect.Effect<never, unknown, T> {
+  private makeRequest<T>(url: URL) {
     return pipe(
       // Perform the `fetch` to the URL
-      Effect.promise(() => fetch(url)),
+      fetch(url),
       // Extract the JSON from the response
-      Effect.flatMap((response) => Effect.promise(() => response.json())),
+      Effect.flatMap((response) => json(response)),
       // Parse the response payload to determine sucess or failure
       Effect.flatMap((payload) => parsePayload(payload))
     );
@@ -81,18 +80,14 @@ export class Client {
 
   /* === API Actions === */
 
-  call(
-    api: string,
-    version: string,
-    method: string
-  ): Effect.Effect<never, NotAuthenticatedError | unknown, unknown> {
+  call(api: string, version: string, method: string) {
     return pipe(
       this.injectAuthentication(buildURL(api, version, method)),
       Effect.flatMap((url) => this.makeRequest(url))
     );
   }
 
-  listShares(): Effect.Effect<never, NotAuthenticatedError | unknown, unknown> {
+  listShares() {
     return this.call("SYNO.FileStation.List", "1", "list_share");
   }
 }

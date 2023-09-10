@@ -1,20 +1,19 @@
 import { Effect } from "npm:effect@latest";
-
-type JSONObject = any;
+import type { JsonObject } from "npm:type-fest";
 
 class UnexpectedPayloadError extends Error {
-  payload: any;
+  payload: JsonObject;
 
-  constructor(payload: any) {
+  constructor(payload: JsonObject) {
     super("Unexpected payload received from DSM");
 
     this.payload = payload;
   }
 }
 
-class DSMClientError extends Error {
+export class DSMClientError extends Error {
   code: string;
-  errors: Array<JSONObject>;
+  errors: Array<JsonObject>;
 
   constructor(error: DSMErrorPayload["error"]) {
     const { code, errors } = error;
@@ -30,25 +29,27 @@ interface DSMErrorPayload {
   success: false;
   error: {
     code: string;
-    errors: Array<JSONObject>;
+    errors: Array<JsonObject>;
   };
 }
 
-interface DSMSuccessPayload<T extends JSONObject> {
+interface DSMSuccessPayload<T extends JsonObject> {
   success: true;
   data: T;
 }
 
-type DSMResponse<T> = DSMErrorPayload | DSMSuccessPayload<T>;
+type DSMResponse<T extends JsonObject = JsonObject> =
+  | DSMErrorPayload
+  | DSMSuccessPayload<T>;
 
-function isRecognizedDSMResponse<T>(
+function isRecognizedDSMResponse<T extends JsonObject = JsonObject>(
   payload: unknown
 ): payload is DSMResponse<T> {
   return !!payload && typeof payload === "object" && "success" in payload;
 }
 
-export function parse<T extends JSONObject>(
-  payload: DSMResponse<T> | unknown
+export function parse<T extends JsonObject>(
+  payload: JsonObject
 ): Effect.Effect<never, UnexpectedPayloadError | DSMClientError, T> {
   if (isRecognizedDSMResponse<T>(payload)) {
     if (payload.success) {

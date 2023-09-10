@@ -4,7 +4,7 @@ import { Client } from "./client/client.ts";
 import { credentials } from "./credentials.ts";
 
 if (import.meta.main) {
-  const result = await Effect.runPromise(
+  const results = await Effect.runPromise(
     pipe(
       credentials,
       Effect.flatMap(([username, password]) =>
@@ -12,17 +12,25 @@ if (import.meta.main) {
       ),
       // Effect.flatMap((client) => client.listShares())
 
-      // Effect.flatMap((client) => client.call("SYNO.API.Info", "1", "query")),
+      Effect.flatMap((client) => client.call("SYNO.API.Info", "1", "query")),
 
       // Effect.flatMap((client) =>
       //   client.call("SYNO.FileStation.BackgroundTask", "3", "query")
       // )
 
-      Effect.flatMap((client) =>
-        client.call("SYNO.FileStation.Info", "1", "get")
-      )
+      // Effect.flatMap((client) =>
+      //   client.call("SYNO.FileStation.Info", "1", "get")
+      // )
+
+      Effect.map((json) => Object.keys(json))
+
+      // Effect.map((json) => {
+      //   json;
+      // })
     )
   );
 
-  console.log(result);
+  for (const result of results) {
+    console.log(result);
+  }
 }
