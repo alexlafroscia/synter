@@ -1,6 +1,7 @@
 import { Effect, pipe } from "npm:effect@latest";
 
 import { Client } from "./client/client.ts";
+import { FileStationInfo } from "./client/requests/mod.ts";
 import { credentials } from "./credentials.ts";
 
 if (import.meta.main) {
@@ -12,7 +13,7 @@ if (import.meta.main) {
       ),
       // Effect.flatMap((client) => client.listShares())
 
-      Effect.flatMap((client) => client.call("SYNO.API.Info", "1", "query")),
+      Effect.flatMap((client) => client.call(FileStationInfo))
 
       // Effect.flatMap((client) =>
       //   client.call("SYNO.FileStation.BackgroundTask", "3", "query")
@@ -22,7 +23,7 @@ if (import.meta.main) {
       //   client.call("SYNO.FileStation.Info", "1", "get")
       // )
 
-      Effect.map((json) => Object.keys(json))
+      // Effect.map((json) => Object.keys(json))
 
       // Effect.map((json) => {
       //   json;
@@ -30,7 +31,5 @@ if (import.meta.main) {
     )
   );
 
-  for (const result of results) {
-    console.log(result);
-  }
+  console.log(results);
 }

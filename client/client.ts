@@ -1,11 +1,7 @@
 import { Effect, Option, pipe } from "npm:effect@latest";
 
-import {
-  Authentication,
-  parse as parseAuthentication,
-} from "./authentication.ts";
-import { buildURL } from "./url.ts";
 import { parse as parsePayload } from "./payload.ts";
+import { type Request, type ResponsePayload, Login } from "./requests/mod.ts";
 
 import { fetch, json } from "../fetch.ts";
 class NotAuthenticatedError extends Error {
@@ -15,14 +11,12 @@ class NotAuthenticatedError extends Error {
 }
 
 export class Client {
-  private authentication: Option.Option<Authentication> = Option.none();
+  private authentication: Option.Option<ResponsePayload<typeof Login>> =
+    Option.none();
 
   private constructor() {}
 
-  static create(
-    username: string,
-    password: string
-  ): Effect.Effect<never, NotAuthenticatedError | unknown, Client> {
+  static create(username: string, password: string) {
     const client = new Client();
 
     return client.authenticate(username, password);
@@ -42,11 +36,8 @@ export class Client {
     });
   }
 
-  private authenticate(
-    username: string,
-    password: string
-  ): Effect.Effect<never, unknown, Client> {
-    const url = buildURL("SYNO.API.Auth", "6", "login");
+  private authenticate(username: string, password: string) {
+    const { url } = Login;
 
     // User name and password
     url.searchParams.append("account", username);
@@ -57,7 +48,7 @@ export class Client {
 
     return pipe(
       this.makeRequest(url),
-      Effect.flatMap((payload) => parseAuthentication(payload)),
+      Effect.flatMap((payload) => Login.parse(payload)),
       Effect.map((authentication) => {
         // Run side-effect; is there a better way to do this?
         this.authentication = Option.some(authentication);
@@ -80,14 +71,11 @@ export class Client {
 
   /* === API Actions === */
 
-  call(api: string, version: string, method: string) {
+  call<T>(request: Request<T>) {
     return pipe(
-      this.injectAuthentication(buildURL(api, version, method)),
-      Effect.flatMap((url) => this.makeRequest(url))
+      this.injectAuthentication(request.url),
+      Effect.flatMap((url) => this.makeRequest(url)),
+      Effect.flatMap((json) => request.parse(json))
     );
-  }
-
-  listShares() {
-    return this.call("SYNO.FileStation.List", "1", "list_share");
   }
 }

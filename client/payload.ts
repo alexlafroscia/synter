@@ -2,9 +2,9 @@ import { Effect } from "npm:effect@latest";
 import type { JsonObject } from "npm:type-fest";
 
 class UnexpectedPayloadError extends Error {
-  payload: JsonObject;
+  payload: unknown;
 
-  constructor(payload: JsonObject) {
+  constructor(payload: unknown) {
     super("Unexpected payload received from DSM");
 
     this.payload = payload;
@@ -33,25 +33,21 @@ interface DSMErrorPayload {
   };
 }
 
-interface DSMSuccessPayload<T extends JsonObject> {
+interface DSMSuccessPayload {
   success: true;
-  data: T;
+  data: unknown;
 }
 
-type DSMResponse<T extends JsonObject = JsonObject> =
-  | DSMErrorPayload
-  | DSMSuccessPayload<T>;
+type DSMResponse = DSMErrorPayload | DSMSuccessPayload;
 
-function isRecognizedDSMResponse<T extends JsonObject = JsonObject>(
-  payload: unknown
-): payload is DSMResponse<T> {
+function isRecognizedDSMResponse(payload: unknown): payload is DSMResponse {
   return !!payload && typeof payload === "object" && "success" in payload;
 }
 
-export function parse<T extends JsonObject>(
-  payload: JsonObject
-): Effect.Effect<never, UnexpectedPayloadError | DSMClientError, T> {
-  if (isRecognizedDSMResponse<T>(payload)) {
+export function parse(
+  payload: unknown
+): Effect.Effect<never, UnexpectedPayloadError | DSMClientError, unknown> {
+  if (isRecognizedDSMResponse(payload)) {
     if (payload.success) {
       return Effect.succeed(payload.data);
     } else {
