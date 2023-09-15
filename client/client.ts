@@ -1,7 +1,7 @@
 import { Effect, Option, pipe } from "npm:effect@latest";
 
 import { parse as parsePayload } from "./payload.ts";
-import { type Request, type ResponsePayload, Login } from "./requests/mod.ts";
+import { type Request, type ResponsePayload, SYNO } from "./requests/mod.ts";
 
 import { fetch, json } from "../fetch.ts";
 class NotAuthenticatedError extends Error {
@@ -11,8 +11,9 @@ class NotAuthenticatedError extends Error {
 }
 
 export class Client {
-  private authentication: Option.Option<ResponsePayload<typeof Login>> =
-    Option.none();
+  private authentication: Option.Option<
+    ResponsePayload<typeof SYNO.API.Auth.login>
+  > = Option.none();
 
   private constructor() {}
 
@@ -37,7 +38,7 @@ export class Client {
   }
 
   private authenticate(username: string, password: string) {
-    const { url } = Login;
+    const { url } = SYNO.API.Auth.login;
 
     // User name and password
     url.searchParams.append("account", username);
@@ -48,7 +49,7 @@ export class Client {
 
     return pipe(
       this.makeRequest(url),
-      Effect.flatMap((payload) => Login.parse(payload)),
+      Effect.flatMap((payload) => SYNO.API.Auth.login.parse(payload)),
       Effect.map((authentication) => {
         // Run side-effect; is there a better way to do this?
         this.authentication = Option.some(authentication);

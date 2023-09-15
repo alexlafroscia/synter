@@ -1,7 +1,7 @@
 import { Effect, pipe } from "npm:effect@latest";
 
 import { Client } from "./client/client.ts";
-import { FileStationInfo } from "./client/requests/mod.ts";
+import { SYNO } from "./client/requests/mod.ts";
 import { credentials } from "./credentials.ts";
 
 if (import.meta.main) {
@@ -11,17 +11,8 @@ if (import.meta.main) {
       Effect.flatMap(([username, password]) =>
         Client.create(username, password)
       ),
-      // Effect.flatMap((client) => client.listShares())
 
-      Effect.flatMap((client) => client.call(FileStationInfo))
-
-      // Effect.flatMap((client) =>
-      //   client.call("SYNO.FileStation.BackgroundTask", "3", "query")
-      // )
-
-      // Effect.flatMap((client) =>
-      //   client.call("SYNO.FileStation.Info", "1", "get")
-      // )
+      Effect.flatMap((client) => client.call(SYNO.FileStation.List.list_share))
 
       // Effect.map((json) => Object.keys(json))
 

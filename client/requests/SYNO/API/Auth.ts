@@ -1,7 +1,7 @@
 import * as S from "npm:@effect/schema/Schema";
-import { Request } from "./request.ts";
+import { Request } from "../../request.ts";
 
-export const Login = new Request({
+export const login = new Request({
   api: "SYNO.API.Auth",
   version: "6",
   method: "login",

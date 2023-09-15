@@ -1,16 +1,7 @@
 import * as S from "npm:@effect/schema/Schema";
-import { Request } from "./request.ts";
+import { Request } from "../../request.ts";
 
-export const FileStationInfo = new Request({
-  api: "SYNO.FileStation.Info",
-  version: "1",
-  method: "query",
-
-  // TODO: model real schema
-  responseSchema: S.unknown,
-});
-
-export const ListShares = new Request({
+export const list_share = new Request({
   api: "SYNO.FileStation.List",
   version: "1",
   method: "list_share",
