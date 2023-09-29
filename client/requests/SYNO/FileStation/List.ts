@@ -13,7 +13,7 @@ export const list_share = new Request({
         isdir: S.boolean,
         name: S.string,
         path: S.string,
-      })
+      }),
     ),
     total: S.number,
   }),

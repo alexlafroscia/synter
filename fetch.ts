@@ -14,7 +14,7 @@ export class FetchClientError {
 }
 
 export function fetch(
-  url: URL
+  url: URL,
 ): Effect.Effect<never, FetchException | FetchClientError, Response> {
   return pipe(
     Effect.tryPromise({
@@ -23,7 +23,7 @@ export function fetch(
     }),
     Effect.flatMap((res) =>
       res.ok ? Effect.succeed(res) : Effect.fail(new FetchClientError(res))
-    )
+    ),
   );
 }
 
@@ -32,7 +32,7 @@ export class JSONError {
 }
 
 export function json(
-  response: Response
+  response: Response,
 ): Effect.Effect<never, JSONError, JsonObject> {
   return Effect.tryPromise({
     try: () => response.json() as Promise<JsonObject>,

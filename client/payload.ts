@@ -2,9 +2,9 @@ import { Effect, pipe } from "npm:effect@latest";
 import type { JsonObject } from "npm:type-fest";
 
 import {
-  parse as parseError,
   type DSMClientError,
   type DSMErrorParseError,
+  parse as parseError,
 } from "./error.ts";
 
 class UnexpectedPayloadError extends Error {
@@ -44,7 +44,7 @@ export type ParseError =
   | DSMErrorParseError;
 
 export function parse(
-  payload: unknown
+  payload: unknown,
 ): Effect.Effect<never, ParseError, unknown> {
   if (isRecognizedDSMResponse(payload)) {
     if (payload.success) {
@@ -56,7 +56,7 @@ export function parse(
         // into a failure for parsing the error payload as a whole
         // This is because we want to use a Failure to represent known
         // types of errors from the DSM API
-        Effect.flatMap((clientError) => Effect.fail(clientError))
+        Effect.flatMap((clientError) => Effect.fail(clientError)),
       );
     }
   }

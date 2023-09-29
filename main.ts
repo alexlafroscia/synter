@@ -11,15 +11,13 @@ if (import.meta.main) {
       Effect.flatMap(([username, password]) =>
         Client.create(username, password)
       ),
-
-      Effect.flatMap((client) => client.call(SYNO.FileStation.List.list_share))
-
+      Effect.flatMap((client) => client.call(SYNO.FileStation.List.list_share)),
       // Effect.map((json) => Object.keys(json))
 
       // Effect.map((json) => {
       //   json;
       // })
-    )
+    ),
   );
 
   console.log(results);

@@ -6,11 +6,11 @@ export function env(variable: string): Effect.Effect<never, string, string> {
     Effect.sync(() => Deno.env.get(variable)),
     Effect.flatMap((value) =>
       value
-        ? // If we got a value that isn't empty, we succeeded
-          Effect.succeed(value)
-        : // If we got a empty value, then the environment variable needs to be set
-          Effect.fail(`$${variable} is not set`)
-    )
+        // If we got a value that isn't empty, we succeeded
+        ? Effect.succeed(value)
+        // If we got a empty value, then the environment variable needs to be set
+        : Effect.fail(`$${variable} is not set`)
+    ),
   );
 }
 
@@ -21,5 +21,5 @@ export const password = env("DSM_PWD");
 export const credentials = Effect.zipWith(
   username,
   password,
-  (username, password) => Data.tuple(username, password)
+  (username, password) => Data.tuple(username, password),
 );

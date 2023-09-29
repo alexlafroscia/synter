@@ -7,7 +7,7 @@ Deno.test("parse", async (t) => {
   await t.step("UnknownError", () => {
     assertEquals(
       parse({ code: 100 }),
-      ParseResult.success({ code: 100, message: "Unknown error." })
+      ParseResult.success({ code: 100, message: "Unknown error." }),
     );
   });
 
@@ -17,7 +17,7 @@ Deno.test("parse", async (t) => {
       ParseResult.success({
         code: 101,
         message: "No parameter of API, method or version.",
-      })
+      }),
     );
   });
 

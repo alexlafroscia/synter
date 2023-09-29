@@ -24,7 +24,7 @@ Deno.test("extracting a recognized error", () => {
     JSON.stringify({
       code: 101,
       message: "No parameter of API, method or version.",
-    })
+    }),
   );
 });
 

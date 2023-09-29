@@ -24,7 +24,7 @@ export class Client {
   }
 
   private injectAuthentication(
-    url: URL
+    url: URL,
   ): Effect.Effect<never, NotAuthenticatedError, URL> {
     return Option.match(this.authentication, {
       onNone: () => Effect.fail(new NotAuthenticatedError()),
@@ -55,7 +55,7 @@ export class Client {
         this.authentication = Option.some(authentication);
 
         return this;
-      })
+      }),
     );
   }
 
@@ -66,7 +66,7 @@ export class Client {
       // Extract the JSON from the response
       Effect.flatMap((response) => json(response)),
       // Parse the response payload to determine sucess or failure
-      Effect.flatMap((payload) => parsePayload(payload))
+      Effect.flatMap((payload) => parsePayload(payload)),
     );
   }
 
@@ -76,7 +76,7 @@ export class Client {
     return pipe(
       this.injectAuthentication(request.url),
       Effect.flatMap((url) => this.makeRequest(url)),
-      Effect.flatMap((json) => request.parse(json))
+      Effect.flatMap((json) => request.parse(json)),
     );
   }
 }

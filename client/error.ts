@@ -19,7 +19,7 @@ function makeError(code: number, message: string) {
     // Transform from "original" to "extended"
     (error) => ({ ...error, message }),
     // Transform from "extended" to "original"
-    ({ message: _message, ...rest }) => rest
+    ({ message: _message, ...rest }) => rest,
   );
 }
 
@@ -55,7 +55,7 @@ const KNOWN_ERRORS: Record<number, string> = {
 const AnyDSMClientError = S.union(
   ...Object.entries(KNOWN_ERRORS).map(([code, message]) =>
     makeError(parseInt(code), message)
-  )
+  ),
 );
 
 export const parse = S.parseResult(AnyDSMClientError);

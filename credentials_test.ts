@@ -3,9 +3,9 @@ import {
   assertThrows,
 } from "https://deno.land/std@0.201.0/assert/mod.ts";
 import {
-  stub,
   returnsArg,
   returnsNext,
+  stub,
 } from "https://deno.land/std@0.201.0/testing/mock.ts";
 
 import { Effect } from "npm:effect@latest";
@@ -23,7 +23,7 @@ Deno.test(
     assertStrictEquals(Effect.runSync(env("WHATEVER")), "WHATEVER");
 
     envGetMock.restore();
-  }
+  },
 );
 
 Deno.test(
@@ -37,11 +37,11 @@ Deno.test(
         Effect.runSync(env("WHATEVER"));
       },
       Error,
-      "$WHATEVER is not set"
+      "$WHATEVER is not set",
     );
 
     envGetMock.restore();
-  }
+  },
 );
 
 Deno.test(
@@ -53,7 +53,7 @@ Deno.test(
         Effect.runSync(env("WHATEVER"));
       },
       Error,
-      'Requires env access to "WHATEVER"'
+      'Requires env access to "WHATEVER"',
     );
-  }
+  },
 );
