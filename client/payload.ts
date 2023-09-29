@@ -1,5 +1,11 @@
-import { Effect } from "npm:effect@latest";
+import { Effect, pipe } from "npm:effect@latest";
 import type { JsonObject } from "npm:type-fest";
+
+import {
+  parse as parseError,
+  type DSMClientError,
+  type DSMErrorParseError,
+} from "./error.ts";
 
 class UnexpectedPayloadError extends Error {
   payload: unknown;
@@ -10,21 +16,6 @@ class UnexpectedPayloadError extends Error {
     this.payload = payload;
   }
 }
-
-export class DSMClientError extends Error {
-  code: string;
-  errors: Array<JsonObject>;
-
-  constructor(error: DSMErrorPayload["error"]) {
-    const { code, errors } = error;
-
-    super(`Client error with request: ${code}`);
-
-    this.code = code;
-    this.errors = errors;
-  }
-}
-
 interface DSMErrorPayload {
   success: false;
   error: {
@@ -44,14 +35,29 @@ function isRecognizedDSMResponse(payload: unknown): payload is DSMResponse {
   return !!payload && typeof payload === "object" && "success" in payload;
 }
 
+export type ParseError =
+  // DSM payloads that don't match their documentation at all
+  | UnexpectedPayloadError
+  // Recognized DSM error payloads
+  | DSMClientError
+  // DSM error payloads that don't match their documentation
+  | DSMErrorParseError;
+
 export function parse(
   payload: unknown
-): Effect.Effect<never, UnexpectedPayloadError | DSMClientError, unknown> {
+): Effect.Effect<never, ParseError, unknown> {
   if (isRecognizedDSMResponse(payload)) {
     if (payload.success) {
       return Effect.succeed(payload.data);
     } else {
-      return Effect.fail(new DSMClientError(payload.error));
+      return pipe(
+        parseError(payload.error),
+        // A successful parsing of the error should still be converted
+        // into a failure for parsing the error payload as a whole
+        // This is because we want to use a Failure to represent known
+        // types of errors from the DSM API
+        Effect.flatMap((clientError) => Effect.fail(clientError))
+      );
     }
   }
 
